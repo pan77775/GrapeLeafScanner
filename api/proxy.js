@@ -1,5 +1,4 @@
 // api/proxy.js
-
 const express = require("express");
 const fetch = require("node-fetch");
 const multer = require("multer");
@@ -19,12 +18,12 @@ app.post("/detect", upload.single("file"), async (req, res) => {
       },
     });
 
-    const resultBuffer = await response.buffer();
-    res.set("Content-Type", response.headers.get("content-type"));
-    res.send(resultBuffer);
-  } catch (err) {
-    console.error("Proxy error:", err);
-    res.status(500).send("Proxy failed.");
+    const buffer = await response.buffer();
+    res.set("Content-Type", response.headers.get("content-type") || "image/jpeg");
+    res.send(buffer);
+  } catch (error) {
+    console.error("Proxy Error:", error);
+    res.status(500).send("Proxy Error");
   }
 });
 
