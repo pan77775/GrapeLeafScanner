@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>圖片上傳與辨識</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; text-align: center; }
+    #output-img { margin-top: 20px; max-width: 100%; height: auto; }
+  </style>
+</head>
+<body>
+  <h1>上傳圖片進行辨識 ✨</h1>
+  <input type="file" id="image-input" accept="image/*" />
+  <br><br>
+  <button id="upload-btn">傳送到 API</button>
+  <br>
+  <img id="output-img" src="" alt="API 回傳圖片將顯示在這裡～" />
+
+  <script>
+    const input = document.getElementById("image-input");
+    const button = document.getElementById("upload-btn");
+    const outputImg = document.getElementById("output-img");
+
+    button.addEventListener("click", async () => {
+      if (!input.files[0]) {
+        alert("請選擇一張圖片！");
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append("file", input.files[0]);
+
+      try {
+        const res = await fetch("http://220.128.130.212:9000/detect/", {
+          method: "POST",
+          body: formData,
+        });
+
+        if (!res.ok) {
+          throw new Error("API 回應失敗");
+        }
+
+        const blob = await res.blob();
+        const imgURL = URL.createObjectURL(blob);
+        outputImg.src = imgURL;
+      } catch (err) {
+        alert("上傳或辨識失敗：" + err.message);
+      }
+    });
+  </script>
+</body>
+</html>
