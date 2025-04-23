@@ -6,7 +6,10 @@ const FormData = require("form-data");
 
 const app = express();
 const upload = multer();
+
+// CORS 設定
 app.use(cors());
+app.options("*", cors());
 
 app.post("/detect", upload.single("file"), async (req, res) => {
   try {
@@ -23,12 +26,26 @@ app.post("/detect", upload.single("file"), async (req, res) => {
     });
 
     const resultBuffer = await response.buffer();
-    res.set("Content-Type", response.headers.get("content-type") || "image/jpeg");
-    res.set("Access-Control-Allow-Origin", "*"); // ⭐ 強制加上 CORS 回應 header
+    const contentType = response.headers.get("content-type") || "image/jpeg";
+
+    res.set({
+      "Content-Type": contentType,
+      "Access-Control-Allow-Origin": "*", // ⭐️ CORS header 主動設定
+      "Access-Control-Allow-Methods": "POST, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type",
+    });
+
     res.send(resultBuffer);
   } catch (error) {
     console.error("Proxy Error:", error);
-    res.status(500).send("Proxy Error");
+
+    res.set({
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "POST, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type",
+    });
+
+    res.status(500).send("Proxy error.");
   }
 });
 
